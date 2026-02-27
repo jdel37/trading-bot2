@@ -7,7 +7,8 @@
 const { rsi: calcRSI } = require('../utils/indicators');
 const { STRATEGY_CONFIG } = require('../config');
 
-function analyze(closes) {
+function analyze(bars) {
+    const closes = bars.map(b => b.close);
     const { period, oversold, overbought } = STRATEGY_CONFIG.rsi;
     if (closes.length < period + 2) return { signal: 'HOLD', reason: 'Not enough data' };
 

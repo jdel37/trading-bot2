@@ -81,15 +81,15 @@ async function tick() {
                     continue;
                 }
 
-                const closes = bars.map(b => b.close);
-                const result = strategy.analyze(closes);
-                const lastPrice = closes[closes.length - 1];
+                const cleanSymbol = symbol.replace('/', '');
+                const alreadyOpen = openSymbols.has(cleanSymbol) || openSymbols.has(symbol);
+                const currentPosition = state.positions.find(p => p.symbol === symbol || p.symbol.replace('/', '') === cleanSymbol);
+
+                const result = strategy.analyze(bars, currentPosition);
+                const lastPrice = bars[bars.length - 1].close;
 
                 logger.info(`[Signal] ${symbol} → ${result.signal} | ${result.reason} | Price: ${lastPrice.toFixed(4)}`);
                 pushSignal({ symbol, ...result, price: lastPrice });
-
-                const cleanSymbol = symbol.replace('/', '');
-                const alreadyOpen = openSymbols.has(cleanSymbol) || openSymbols.has(symbol);
 
                 if (result.signal === 'BUY' && !alreadyOpen) {
                     if (!canOpenPosition(state.positions.length)) {
@@ -138,4 +138,4 @@ function start() {
     });
 }
 
-module.exports = { start, state, botEvents };
+module.exports = { start, tick, state, botEvents };

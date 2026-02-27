@@ -15,15 +15,15 @@ const BROKER = (process.env.BROKER || 'alpaca').toLowerCase();
 
 // ── Alpaca ─────────────────────────────────────────────────
 const ALPACA = {
-  keyId:     require_env('ALPACA_API_KEY'),
+  keyId: require_env('ALPACA_API_KEY'),
   secretKey: require_env('ALPACA_API_SECRET'),
-  baseUrl:   process.env.ALPACA_BASE_URL || 'https://paper-api.alpaca.markets',
-  paper:     (process.env.ALPACA_BASE_URL || '').includes('paper') || process.env.TRADING_MODE !== 'live',
+  baseUrl: process.env.ALPACA_BASE_URL || 'https://paper-api.alpaca.markets',
+  paper: (process.env.ALPACA_BASE_URL || '').includes('paper') || process.env.TRADING_MODE !== 'live',
 };
 
 // ── Binance ────────────────────────────────────────────────
 const BINANCE = {
-  apiKey:    process.env.BINANCE_API_KEY || '',
+  apiKey: process.env.BINANCE_API_KEY || '',
   apiSecret: process.env.BINANCE_API_SECRET || '',
 };
 
@@ -31,35 +31,42 @@ const BINANCE = {
 const SYMBOLS = (process.env.SYMBOLS || 'BTC/USD,ETH/USD').split(',').map(s => s.trim());
 
 // ── Market data ────────────────────────────────────────────
-const TIMEFRAME   = process.env.TIMEFRAME   || '5Min';
-const BAR_LIMIT   = parseInt(process.env.BAR_LIMIT || '100', 10);
+const TIMEFRAME = process.env.TIMEFRAME || '5Min';
+const BAR_LIMIT = parseInt(process.env.BAR_LIMIT || '100', 10);
 const CRON_SCHEDULE = process.env.CRON_SCHEDULE || '*/5 * * * *';
 
 // ── Strategy ───────────────────────────────────────────────
 const STRATEGY = (process.env.STRATEGY || 'rsi').toLowerCase();
 const STRATEGY_CONFIG = {
   ema: {
-    fast: parseInt(process.env.EMA_FAST || '9',  10),
+    fast: parseInt(process.env.EMA_FAST || '9', 10),
     slow: parseInt(process.env.EMA_SLOW || '21', 10),
   },
   rsi: {
-    period:     parseInt(process.env.RSI_PERIOD      || '14', 10),
-    oversold:   parseInt(process.env.RSI_OVERSOLD    || '30', 10),
-    overbought: parseInt(process.env.RSI_OVERBOUGHT  || '70', 10),
+    period: parseInt(process.env.RSI_PERIOD || '14', 10),
+    oversold: parseInt(process.env.RSI_OVERSOLD || '30', 10),
+    overbought: parseInt(process.env.RSI_OVERBOUGHT || '70', 10),
   },
   macd: {
-    fast:   parseInt(process.env.MACD_FAST   || '12', 10),
-    slow:   parseInt(process.env.MACD_SLOW   || '26', 10),
-    signal: parseInt(process.env.MACD_SIGNAL || '9',  10),
+    fast: parseInt(process.env.MACD_FAST || '12', 10),
+    slow: parseInt(process.env.MACD_SLOW || '26', 10),
+    signal: parseInt(process.env.MACD_SIGNAL || '9', 10),
+  },
+  macrossover: {
+    fastMA: parseInt(process.env.MACROSSOVER_FAST || '50', 10),
+    slowMA: parseInt(process.env.MACROSSOVER_SLOW || '200', 10),
+    pullbackMA: parseInt(process.env.MACROSSOVER_PULLBACK || '21', 10),
+    atrPeriod: parseInt(process.env.MACROSSOVER_ATR_PERIOD || '14', 10),
+    stopLossAtr: parseFloat(process.env.MACROSSOVER_SL_ATR || '1.5'),
   },
 };
 
 // ── Risk management ────────────────────────────────────────
 const RISK = {
-  riskPerTrade:   parseFloat(process.env.RISK_PER_TRADE   || '0.02'),
-  stopLossPct:    parseFloat(process.env.STOP_LOSS_PCT    || '0.03'),
-  takeProfitPct:  parseFloat(process.env.TAKE_PROFIT_PCT  || '0.06'),
-  maxPositions:   parseInt(process.env.MAX_POSITIONS      || '5', 10),
+  riskPerTrade: parseFloat(process.env.RISK_PER_TRADE || '0.02'),
+  stopLossPct: parseFloat(process.env.STOP_LOSS_PCT || '0.03'),
+  takeProfitPct: parseFloat(process.env.TAKE_PROFIT_PCT || '0.06'),
+  maxPositions: parseInt(process.env.MAX_POSITIONS || '5', 10),
 };
 
 // ── Server ─────────────────────────────────────────────────

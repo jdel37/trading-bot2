@@ -20,6 +20,20 @@ app.get('/api/state', (req, res) => {
     res.json(bot.state);
 });
 
+// ── Vercel Cron Endpoint ──────────────────────────────────
+app.get('/api/cron', async (req, res) => {
+    try {
+        if (process.env.CRON_SECRET && req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+            return res.status(401).json({ success: false, error: 'Unauthorized' });
+        }
+        await bot.tick();
+        res.status(200).json({ success: true, message: 'Tick executed' });
+    } catch (err) {
+        logger.error(`[Cron] Error: ${err.message}`);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // ── WebSocket: push state to all clients ──────────────────
 function broadcast(data) {
     const payload = JSON.stringify(data);
@@ -43,11 +57,15 @@ wss.on('connection', (ws) => {
 });
 
 // ── Start server + bot ─────────────────────────────────────
-server.listen(PORT, () => {
-    logger.info(`[Server] Dashboard running at http://localhost:${PORT}`);
-    bot.start();
-});
+if (require.main === module) {
+    server.listen(PORT, () => {
+        logger.info(`[Server] Dashboard running at http://localhost:${PORT}`);
+        bot.start();
+    });
+}
 
 // ── Graceful shutdown ──────────────────────────────────────
 process.on('SIGINT', () => { logger.info('[Server] Shutting down...'); process.exit(0); });
 process.on('SIGTERM', () => { logger.info('[Server] Shutting down...'); process.exit(0); });
+
+module.exports = app;

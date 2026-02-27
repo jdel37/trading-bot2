@@ -6,6 +6,7 @@ const strategies = {
     movingaverage: require('./movingAverage'),
     rsi: require('./rsi'),
     macd: require('./macd'),
+    macrossover: require('./macrossover'),
 };
 
 const key = STRATEGY.toLowerCase().replace(/[^a-z]/g, '');

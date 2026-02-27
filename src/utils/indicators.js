@@ -119,4 +119,43 @@ function bollingerBands(data, period = 20, stdDevMult = 2) {
     };
 }
 
-module.exports = { sma, ema, rsi, macd, bollingerBands };
+/**
+ * Average True Range (ATR)
+ * Requires bars {high, low, close}
+ * Returns the latest ATR value.
+ */
+function atr(bars, period = 14) {
+    if (bars.length < period + 1) return null;
+
+    const trueRanges = [];
+    for (let i = 1; i < bars.length; i++) {
+        const currentHigh = bars[i].high;
+        const currentLow = bars[i].low;
+        const previousClose = bars[i - 1].close;
+
+        if (currentHigh === undefined || currentLow === undefined || previousClose === undefined) {
+            return null;
+        }
+
+        const tr1 = currentHigh - currentLow;
+        const tr2 = Math.abs(currentHigh - previousClose);
+        const tr3 = Math.abs(currentLow - previousClose);
+
+        const tr = Math.max(tr1, tr2, tr3);
+        trueRanges.push(tr);
+    }
+
+    if (trueRanges.length < period) return null;
+
+    // Use simple moving average of True Range for the first ATR
+    let currentAtr = trueRanges.slice(0, period).reduce((a, b) => a + b, 0) / period;
+
+    // Wilder's smoothing for subsequent ATR values
+    for (let i = period; i < trueRanges.length; i++) {
+        currentAtr = (currentAtr * (period - 1) + trueRanges[i]) / period;
+    }
+
+    return currentAtr;
+}
+
+module.exports = { sma, ema, rsi, macd, bollingerBands, atr };

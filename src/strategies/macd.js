@@ -7,7 +7,8 @@
 const { macd: calcMACD } = require('../utils/indicators');
 const { STRATEGY_CONFIG } = require('../config');
 
-function analyze(closes) {
+function analyze(bars) {
+    const closes = bars.map(b => b.close);
     const { fast, slow, signal } = STRATEGY_CONFIG.macd;
     const needed = slow + signal + 2;
     if (closes.length < needed) return { signal: 'HOLD', reason: 'Not enough data' };
