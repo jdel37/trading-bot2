@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuantBot — Trading Dashboard</title>
+  <meta name="description" content="Real-time quantitative trading bot dashboard for crypto, stocks, and currencies." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Animated background -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⟩_</span>
+        <span class="logo-text">QuantBot</span>
+        <span class="logo-badge" id="mode-badge">PAPER</span>
+      </div>
+      <div class="header-right">
+        <div class="status-dot" id="status-dot"></div>
+        <span class="status-label" id="status-label">Connecting…</span>
+        <span class="header-time" id="header-time"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <!-- KPI Cards -->
+    <section class="kpi-row" role="region" aria-label="Account overview">
+      <div class="card kpi-card" id="card-equity">
+        <div class="kpi-label">Portfolio Equity</div>
+        <div class="kpi-value" id="kpi-equity">$—</div>
+        <div class="kpi-sub" id="kpi-pnl">P&L today: —</div>
+      </div>
+      <div class="card kpi-card" id="card-cash">
+        <div class="kpi-label">Buying Power</div>
+        <div class="kpi-value" id="kpi-buying-power">$—</div>
+        <div class="kpi-sub" id="kpi-cash">Cash: —</div>
+      </div>
+      <div class="card kpi-card">
+        <div class="kpi-label">Open Positions</div>
+        <div class="kpi-value" id="kpi-positions">—</div>
+        <div class="kpi-sub" id="kpi-signals">Last signal: —</div>
+      </div>
+      <div class="card kpi-card">
+        <div class="kpi-label">Total Trades</div>
+        <div class="kpi-value" id="kpi-trades">—</div>
+        <div class="kpi-sub" id="kpi-last-tick">Last tick: —</div>
+      </div>
+    </section>
+
+    <!-- Middle row: chart + positions -->
+    <section class="mid-row">
+      <!-- Price chart -->
+      <div class="card chart-card">
+        <div class="card-header">
+          <h2 class="card-title">Price Chart</h2>
+          <div class="symbol-tabs" id="symbol-tabs"></div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="price-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Open positions -->
+      <div class="card positions-card">
+        <div class="card-header">
+          <h2 class="card-title">Open Positions</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="positions-table">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Side</th>
+                <th>Qty</th>
+                <th>Entry</th>
+                <th>P&L</th>
+              </tr>
+            </thead>
+            <tbody id="positions-body">
+              <tr><td colspan="5" class="empty-row">No positions</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom row: signals + trades -->
+    <section class="bottom-row">
+      <!-- Signal log -->
+      <div class="card log-card">
+        <div class="card-header">
+          <h2 class="card-title">📡 Signal Log</h2>
+        </div>
+        <ul class="log-list" id="signal-log"></ul>
+      </div>
+
+      <!-- Trade log -->
+      <div class="card log-card">
+        <div class="card-header">
+          <h2 class="card-title">⚡ Trade Log</h2>
+        </div>
+        <ul class="log-list" id="trade-log"></ul>
+      </div>
+
+      <!-- Error log -->
+      <div class="card log-card">
+        <div class="card-header">
+          <h2 class="card-title">⚠️ Errors</h2>
+        </div>
+        <ul class="log-list" id="error-log">
+          <li class="log-item log-empty">No errors</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    QuantBot v1.0 &nbsp;|&nbsp; <span id="broker-label">—</span> &nbsp;|&nbsp; Strategy: <span id="strategy-label">—</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "quant-trading-bot",
+  "version": "1.0.0",
+  "description": "Quantitative trading bot for crypto, stocks, and currencies using Alpaca Markets",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "bot-only": "node src/bot.js"
+  },
+  "dependencies": {
+    "@alpacahq/alpaca-trade-api": "^3.1.1",
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "node-binance-api": "^1.0.22",
+    "node-cron": "^3.0.3",
+    "technicalindicators": "^3.1.0",
+    "winston": "^3.11.0",
+    "ws": "^8.16.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
