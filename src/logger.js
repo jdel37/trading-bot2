@@ -13,7 +13,15 @@ const logger = createLogger({
         errors({ stack: true }),
         logFormat
     ),
-    transports: [
+    transports: process.env.VERCEL ? [
+        new transports.Console({
+            format: combine(
+                colorize({ all: true }),
+                timestamp({ format: 'HH:mm:ss' }),
+                logFormat
+            ),
+        })
+    ] : [
         new transports.Console({
             format: combine(
                 colorize({ all: true }),
