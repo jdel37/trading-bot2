@@ -98,6 +98,9 @@ function setStatus(cls, label) {
 
 // ── Render all ─────────────────────────────────────────────
 function renderAll(state) {
+    if (state.liveBar) {
+        handleLiveBar(state.liveBar);
+    }
     renderAccount(state.account);
     renderPositions(state.positions, state.account.equity);
     renderSignals(state.signals);
@@ -105,6 +108,29 @@ function renderAll(state) {
     renderErrors(state.errors);
     updateSymbolTabs(state.signals);
     updateMeta(state.lastTick);
+}
+
+// ── Live Bar (WebSocket) ──────────────────────────────────
+function handleLiveBar(bar) {
+    if (!bar || !bar.symbol) return;
+    const sym = bar.symbol;
+
+    if (!chartHistory[sym]) chartHistory[sym] = [];
+
+    // Check if we already have this exact timestamp (replace it if so)
+    const history = chartHistory[sym];
+    const existingIdx = history.findIndex(h => h.time === bar.time);
+
+    if (existingIdx !== -1) {
+        history[existingIdx].close = bar.close;
+    } else {
+        history.unshift({ time: bar.time, close: bar.close });
+        if (history.length > 80) history.pop();
+    }
+
+    if (sym === activeSymbol) {
+        renderChart(sym);
+    }
 }
 
 // ── Account KPIs ───────────────────────────────────────────

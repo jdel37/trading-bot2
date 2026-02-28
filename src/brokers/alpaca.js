@@ -1,15 +1,73 @@
 'use strict';
 const Alpaca = require('@alpacahq/alpaca-trade-api');
+const { EventEmitter } = require('events');
 const { ALPACA, TIMEFRAME } = require('../config');
 const logger = require('../logger');
 
-// ── Alpaca client singleton ────────────────────────────────
 const alpaca = new Alpaca({
     keyId: ALPACA.keyId,
     secretKey: ALPACA.secretKey,
     baseUrl: ALPACA.baseUrl,
     paper: ALPACA.paper,
 });
+
+// ── WebSocket Client ───────────────────────────────────────
+const wsEvents = new EventEmitter();
+
+function connectWS(symbols) {
+    const cryptoSymbols = symbols.filter(s => s.includes('/'));
+    const stockSymbols = symbols.filter(s => !s.includes('/'));
+
+    // Stocks Data Stream
+    if (stockSymbols.length > 0) {
+        const mx = alpaca.data_stream_v2;
+        mx.connect();
+        mx.onConnect(() => {
+            logger.info('[Alpaca WS] Connected to Stocks Data Stream');
+            mx.subscribeForBars(stockSymbols);
+        });
+        mx.onError((err) => { logger.error(`[Alpaca WS] Stock Stream Error: ${err}`); });
+        mx.onStockBar((bar) => {
+            wsEvents.emit('bar', {
+                symbol: bar.Symbol,
+                time: bar.Timestamp,
+                open: bar.OpenPrice,
+                high: bar.HighPrice,
+                low: bar.LowPrice,
+                close: bar.ClosePrice,
+                volume: bar.Volume,
+            });
+        });
+    }
+
+    // Crypto Data Stream
+    if (cryptoSymbols.length > 0) {
+        // En alpaca-trade-api moderno, el stream a veces necesita ser instanciado o se accede diferente.
+        // Alpaca crypto stream is typically accessible via alpaca.crypto_stream_v2
+        if (alpaca.crypto_stream_v2) {
+            const cx = alpaca.crypto_stream_v2;
+            cx.connect();
+            cx.onConnect(() => {
+                logger.info('[Alpaca WS] Connected to Crypto Data Stream');
+                cx.subscribeForBars(cryptoSymbols);
+            });
+            cx.onError((err) => { logger.error(`[Alpaca WS] Crypto Stream Error: ${err}`); });
+            cx.onCryptoBar((bar) => {
+                wsEvents.emit('bar', {
+                    symbol: bar.Symbol,
+                    time: bar.Timestamp,
+                    open: bar.OpenPrice,
+                    high: bar.HighPrice,
+                    low: bar.LowPrice,
+                    close: bar.ClosePrice,
+                    volume: bar.Volume,
+                });
+            });
+        } else {
+            logger.warn('[Alpaca WS] Crypto stream v2 not available on this SDK version');
+        }
+    }
+}
 
 // ── Account ────────────────────────────────────────────────
 async function getAccount() {
@@ -150,4 +208,4 @@ async function closePosition(symbol) {
     }
 }
 
-module.exports = { getAccount, getPositions, getBars, getLatestPrice, placeOrder, closePosition };
+module.exports = { getAccount, getPositions, getBars, getLatestPrice, placeOrder, closePosition, wsEvents, connectWS };

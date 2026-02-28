@@ -6,17 +6,22 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "bot-only": "node src/bot.js"
+    "bot-only": "node src/bot.js",
+    "backtest": "node src/backtester.js",
+    "train": "node src/ml/model.js"
   },
   "dependencies": {
     "@alpacahq/alpaca-trade-api": "^3.1.1",
     "axios": "^1.6.7",
+    "brain.js": "^2.0.0-beta.24",
     "dotenv": "^16.4.1",
     "express": "^4.18.2",
+    "mongoose": "^9.2.3",
     "node-binance-api": "^1.0.22",
     "node-cron": "^3.0.3",
     "technicalindicators": "^3.1.0",
     "winston": "^3.11.0",
+    "winston-mongodb": "^7.0.1",
     "ws": "^8.16.0"
   },
   "engines": {

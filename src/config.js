@@ -30,6 +30,9 @@ const BINANCE = {
 // ── Symbols ────────────────────────────────────────────────
 const SYMBOLS = (process.env.SYMBOLS || 'BTC/USD,ETH/USD').split(',').map(s => s.trim());
 
+// ── General ────────────────────────────────────────────────
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/tradingbot';
+
 // ── Market data ────────────────────────────────────────────
 const TIMEFRAME = process.env.TIMEFRAME || '5Min';
 const BAR_LIMIT = parseInt(process.env.BAR_LIMIT || '100', 10);
@@ -74,7 +77,7 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 
 module.exports = {
   BROKER, ALPACA, BINANCE,
-  SYMBOLS, TIMEFRAME, BAR_LIMIT, CRON_SCHEDULE,
+  SYMBOLS, MONGO_URI, TIMEFRAME, BAR_LIMIT, CRON_SCHEDULE,
   STRATEGY, STRATEGY_CONFIG,
   RISK, PORT,
 };

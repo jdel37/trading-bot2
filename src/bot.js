@@ -10,6 +10,8 @@ const logger = require('./logger');
 const { SYMBOLS, CRON_SCHEDULE, BROKER, BAR_LIMIT } = require('./config');
 const { calcPositionSize, canOpenPosition, checkExit } = require('./risk/riskManager');
 const strategy = require('./strategies/index');
+const Trade = require('./models/Trade');
+const Signal = require('./models/Signal');
 
 // ── Broker adapter (dynamic) ───────────────────────────────
 const broker = BROKER === 'binance'
@@ -30,13 +32,23 @@ const state = {
 const MAX_LOG_ENTRIES = 50;
 
 function pushSignal(entry) {
-    state.signals.unshift({ ...entry, ts: new Date().toISOString() });
+    const ts = new Date().toISOString();
+    state.signals.unshift({ ...entry, ts });
     if (state.signals.length > MAX_LOG_ENTRIES) state.signals.pop();
+
+    Signal.create({ ...entry, ts }).catch(err => {
+        logger.error(`[DB] Error saving signal: ${err.message}`);
+    });
 }
 
 function pushTrade(entry) {
-    state.trades.unshift({ ...entry, ts: new Date().toISOString() });
+    const ts = new Date().toISOString();
+    state.trades.unshift({ ...entry, ts });
     if (state.trades.length > MAX_LOG_ENTRIES) state.trades.pop();
+
+    Trade.create({ ...entry, ts }).catch(err => {
+        logger.error(`[DB] Error saving trade: ${err.message}`);
+    });
 }
 
 // ── Event emitter for WebSocket broadcast ─────────────────
@@ -125,12 +137,33 @@ async function tick() {
 }
 
 // ── Start ──────────────────────────────────────────────────
-function start() {
+async function start() {
     logger.info(`[Bot] Starting — Broker: ${BROKER.toUpperCase()} | Symbols: ${SYMBOLS.join(', ')}`);
     logger.info(`[Bot] Schedule: "${CRON_SCHEDULE}"`);
 
+    try {
+        const recentTrades = await Trade.find().sort({ ts: -1 }).limit(MAX_LOG_ENTRIES);
+        state.trades = recentTrades.map(t => ({ symbol: t.symbol, action: t.action, price: t.price, qty: t.qty, ts: t.ts }));
+
+        const recentSignals = await Signal.find().sort({ ts: -1 }).limit(MAX_LOG_ENTRIES);
+        state.signals = recentSignals.map(s => ({ symbol: s.symbol, signal: s.signal, reason: s.reason, price: s.price, ts: s.ts }));
+        logger.info(`[Bot] Loaded ${state.trades.length} trades and ${state.signals.length} signals from DB`);
+    } catch (err) {
+        logger.error(`[Bot] Failed to load history from DB: ${err.message}`);
+    }
+
     // Run immediately on start
     tick().catch(err => logger.error(`[Bot] Initial tick failed: ${err.message}`));
+
+    // Connect WebSocket
+    if (typeof broker.connectWS === 'function') {
+        broker.connectWS(SYMBOLS);
+        broker.wsEvents.on('bar', (bar) => {
+            // Push real-time price directly to dashboard
+            const extState = { ...state, liveBar: bar };
+            botEvents.emit('state', extState);
+        });
+    }
 
     // Then run on cron
     cron.schedule(CRON_SCHEDULE, () => {

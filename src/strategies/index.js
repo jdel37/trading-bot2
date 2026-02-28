@@ -7,12 +7,13 @@ const strategies = {
     rsi: require('./rsi'),
     macd: require('./macd'),
     macrossover: require('./macrossover'),
+    ml: require('./ml'),
 };
 
 const key = STRATEGY.toLowerCase().replace(/[^a-z]/g, '');
 
 if (!strategies[key]) {
-    logger.error(`Unknown strategy: "${STRATEGY}". Valid options: movingAverage, rsi, macd`);
+    logger.error(`Unknown strategy: "${STRATEGY}". Valid options: movingAverage, rsi, macd, ml`);
     process.exit(1);
 }
 

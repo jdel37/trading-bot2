@@ -7,6 +7,7 @@ const path = require('path');
 const logger = require('./logger');
 const { PORT } = require('./config');
 const bot = require('./bot');
+const connectDB = require('./db/connection');
 
 const app = express();
 const server = http.createServer(app);
@@ -58,8 +59,9 @@ wss.on('connection', (ws) => {
 
 // ── Start server + bot ─────────────────────────────────────
 if (require.main === module) {
-    server.listen(PORT, () => {
+    server.listen(PORT, async () => {
         logger.info(`[Server] Dashboard running at http://localhost:${PORT}`);
+        await connectDB();
         bot.start();
     });
 }
